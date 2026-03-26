@@ -32,11 +32,11 @@ export default function RootLayout({
         <ClerkProvider>
           <header className="border-b p-4">
             <div className="container mx-auto flex justify-between items-center">
-              <h1 className="text-xl font-bold">Prostoic Course</h1>
+              <h1 className="text-xl font-bold">ProStoic</h1>
               <div className="flex gap-4 items-center">
                 <Show when="signed-out">
-                  <SignInButton />
-                  <SignUpButton />
+                  <SignInButton mode="modal" />
+                  <SignUpButton mode="modal" />
                 </Show>
                 <Show when="signed-in">
                   <UserButton />
