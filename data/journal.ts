@@ -28,7 +28,38 @@ export async function getJournalEntriesForCurrentDate() {
   return entries
 }
 
-export async function createJournalEntry(content: string) {
+export async function getJournalEntriesForDate(date: Date) {
+  const user = await currentUser()
+  if (!user?.id) {
+    throw new Error('Unauthorized')
+  }
+
+  const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const endOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)
+
+  const entries = await db
+    .select()
+    .from(journalEntries)
+    .where(
+      and(
+        eq(journalEntries.userId, user.id),
+        gte(journalEntries.createdAt, startOfDay),
+        lt(journalEntries.createdAt, endOfDay)
+      )
+    )
+    .orderBy(journalEntries.createdAt)
+
+  return entries
+}
+
+export async function createJournalEntry(
+  content: string,
+  philosopher?: string,
+  philosophicalSchool?: string,
+  keyConcept?: string,
+  personalReflection?: string,
+  mood?: string
+) {
   const user = await currentUser()
   if (!user?.id) {
     throw new Error('Unauthorized')
@@ -39,6 +70,11 @@ export async function createJournalEntry(content: string) {
     .values({
       userId: user.id,
       content,
+      philosopher,
+      philosophicalSchool,
+      keyConcept,
+      personalReflection,
+      mood,
       createdAt: new Date(),
       updatedAt: new Date(),
     })
@@ -47,7 +83,15 @@ export async function createJournalEntry(content: string) {
   return entry
 }
 
-export async function updateJournalEntry(id: string, content: string) {
+export async function updateJournalEntry(
+  id: string, 
+  content: string,
+  philosopher?: string,
+  philosophicalSchool?: string,
+  keyConcept?: string,
+  personalReflection?: string,
+  mood?: string
+) {
   const user = await currentUser()
   if (!user?.id) {
     throw new Error('Unauthorized')
@@ -57,6 +101,11 @@ export async function updateJournalEntry(id: string, content: string) {
     .update(journalEntries)
     .set({
       content,
+      philosopher,
+      philosophicalSchool,
+      keyConcept,
+      personalReflection,
+      mood,
       updatedAt: new Date(),
     })
     .where(
