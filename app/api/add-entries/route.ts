@@ -1,26 +1,10 @@
-'use server'
+import { NextResponse } from 'next/server'
 import db from '@/db'
 import { journalEntries } from '@/db/schema'
-import { nanoid } from 'nanoid'
 
-const mockUserId = 'mock-user-123'
-
-const mockEntries = [
+const additionalEntries = [
   {
-    id: nanoid(),
-    userId: mockUserId,
-    content: "Today I reflected on the Stoic principle of focusing only what I can control. The morning traffic made me late, but instead of getting angry, I accepted it and used the time to listen to a philosophy podcast. Marcus Aurelius would be proud.",
-    philosopher: "Marcus Aurelius",
-    philosophicalSchool: "Stoicism",
-    keyConcept: "Control and Acceptance",
-    personalReflection: "I need to practice this more in my daily life, especially when things don't go according to plan. The stress I feel is often from trying to control the uncontrollable.",
-    mood: "Contemplative",
-    createdAt: new Date('2026-03-27T08:30:00.000Z'),
-    updatedAt: new Date('2026-03-27T08:30:00.000Z'),
-  },
-  {
-    id: nanoid(),
-    userId: mockUserId,
+    userId: 'mock-user-123',
     content: "Reading Sartre today made me think about the weight of absolute freedom. Every choice I make defines who I am, and there's no excuse for not taking responsibility. It's both terrifying and liberating.",
     philosopher: "Jean-Paul Sartre",
     philosophicalSchool: "Existentialism",
@@ -31,8 +15,7 @@ const mockEntries = [
     updatedAt: new Date('2026-03-27T12:15:00.000Z'),
   },
   {
-    id: nanoid(),
-    userId: mockUserId,
+    userId: 'mock-user-123',
     content: "Plato's Allegory of the Cave keeps coming to mind. How much of what I perceive as reality is just shadows on the wall? The news I consume, the social media feeds - are they the cave or the way out?",
     philosopher: "Plato",
     philosophicalSchool: "Platonism",
@@ -43,8 +26,7 @@ const mockEntries = [
     updatedAt: new Date('2026-03-27T15:45:00.000Z'),
   },
   {
-    id: nanoid(),
-    userId: mockUserId,
+    userId: 'mock-user-123',
     content: "Aristotle's concept of the Golden Mean resonates today. I've been oscillating between extreme workaholism and complete laziness. The virtuous path lies in finding the balance - working with purpose but also allowing for proper rest and contemplation.",
     philosopher: "Aristotle",
     philosophicalSchool: "Aristotelianism",
@@ -55,8 +37,7 @@ const mockEntries = [
     updatedAt: new Date('2026-03-27T18:20:00.000Z'),
   },
   {
-    id: nanoid(),
-    userId: mockUserId,
+    userId: 'mock-user-123',
     content: "Epicurus would say I'm seeking happiness in the wrong places. The expensive dinner I had last night brought temporary pleasure, but the simple morning walk with a friend brought lasting joy. Ataraxia - freedom from disturbance - comes from simple pleasures and meaningful connections.",
     philosopher: "Epicurus",
     philosophicalSchool: "Epicureanism",
@@ -68,14 +49,11 @@ const mockEntries = [
   }
 ]
 
-export async function seedJournalData() {
+export async function POST() {
   try {
-    console.log('Seeding journal entries for March 27, 2026...')
-    
     let successCount = 0
     
-    // Insert entries one by one to avoid batch insert issues
-    for (const entry of mockEntries) {
+    for (const entry of additionalEntries) {
       try {
         await db.insert(journalEntries).values(entry)
         successCount++
@@ -84,10 +62,14 @@ export async function seedJournalData() {
       }
     }
     
-    console.log(`Successfully seeded ${successCount} journal entries`)
-    return { success: true, count: successCount }
+    return NextResponse.json({ 
+      message: `Successfully added ${successCount} additional entries`,
+      count: successCount
+    })
   } catch (error) {
-    console.error('Error seeding journal:', error)
-    return { success: false, error: (error as Error).message }
+    console.error('Error adding entries:', error)
+    return NextResponse.json({ 
+      error: (error as Error).message 
+    }, { status: 500 })
   }
 }
